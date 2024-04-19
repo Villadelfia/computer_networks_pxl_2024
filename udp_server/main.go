@@ -11,11 +11,12 @@ import (
 
 func main() {
 	// Parse flags
+	addr := flag.String("addr", "0.0.0.0", "The address to connect to")
 	port := flag.Int("port", 5555, "The port to listen on")
 	flag.Parse()
 
 	// Build the connection string
-	conn := fmt.Sprintf(":%d", *port)
+	conn := fmt.Sprintf("%s:%d", *addr, *port)
 
 	// Get an address from that
 	udpaddr, err := net.ResolveUDPAddr("udp", conn)
@@ -59,17 +60,13 @@ func main() {
 	}
 	defaultovertimetimeout := defaultovertimetimeoutd.Nanoseconds()
 
-	// We want reading to time out quickly
-	//listener.SetReadDeadline(time.Now().Add(time.Millisecond * 1000))
-
 	// And just infinite loop waiting for packets
 	for {
 		if currentstate == idle {
 			// Try and get a packet...
-			_, addr, err := listener.ReadFromUDP(buffer)
+			listener.SetReadDeadline(time.Now().Add(time.Millisecond * 100))
+			recvd, addr, err := listener.ReadFromUDP(buffer)
 			if err != nil {
-
-				fmt.Println("Error: ", err)
 				continue
 			}
 
@@ -81,7 +78,7 @@ func main() {
 			fmt.Printf("New target: %d\n", target)
 
 			// Mark as best guess
-			guess, err := strconv.Atoi(string(buffer))
+			guess, err := strconv.Atoi(string(buffer[:recvd]))
 			if err != nil {
 				fmt.Println("Error: ", err)
 				continue
@@ -110,7 +107,8 @@ func main() {
 				fmt.Printf("State: overtime\n")
 			} else {
 				// Try and get a packet...
-				_, addr, err := listener.ReadFromUDP(buffer)
+				listener.SetReadDeadline(time.Now().Add(time.Millisecond * 100))
+				recvd, addr, err := listener.ReadFromUDP(buffer)
 				if err != nil {
 					continue
 				}
@@ -119,7 +117,7 @@ func main() {
 				fmt.Printf("Got a packet from %s\n", addr.String())
 
 				// Get guess
-				guess, err := strconv.Atoi(string(buffer))
+				guess, err := strconv.Atoi(string(buffer[:recvd]))
 				if err != nil {
 					fmt.Println("Error: ", err)
 					continue
@@ -156,6 +154,7 @@ func main() {
 				fmt.Printf("State: idle\n")
 			} else {
 				// Try and get a packet...
+				listener.SetReadDeadline(time.Now().Add(time.Millisecond * 100))
 				_, addr, err := listener.ReadFromUDP(buffer)
 				if err != nil {
 					continue
