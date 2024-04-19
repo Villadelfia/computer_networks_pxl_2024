@@ -1,4 +1,4 @@
-package tcp_client
+package main
 
 import (
 	"bufio"
@@ -74,19 +74,21 @@ func handleClient(conn net.Conn, id int) {
 
 		// Send the response
 		if guess < r {
-			fmt.Printf("[Client %d] Sending \"Lower\"\n", id)
-			_, err := writer.WriteString("Lower")
-			if err != nil {
-				fmt.Printf("[Client %d] Error: %s\n", id, err)
-				return
-			}
-		} else if guess > r {
 			fmt.Printf("[Client %d] Sending \"Higher\"\n", id)
 			_, err := writer.WriteString("Higher")
 			if err != nil {
 				fmt.Printf("[Client %d] Error: %s\n", id, err)
 				return
 			}
+			writer.Flush()
+		} else if guess > r {
+			fmt.Printf("[Client %d] Sending \"Lower\"\n", id)
+			_, err := writer.WriteString("Lower")
+			if err != nil {
+				fmt.Printf("[Client %d] Error: %s\n", id, err)
+				return
+			}
+			writer.Flush()
 		} else {
 			fmt.Printf("[Client %d] Sending \"Correct\"\n", id)
 			_, err := writer.WriteString("Correct")
@@ -94,6 +96,7 @@ func handleClient(conn net.Conn, id int) {
 				fmt.Printf("[Client %d] Error: %s\n", id, err)
 				return
 			} else {
+				writer.Flush()
 				break
 			}
 		}
