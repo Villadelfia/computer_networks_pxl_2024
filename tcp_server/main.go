@@ -49,8 +49,8 @@ func main() {
 func handleClient(conn net.Conn, id int) {
 	defer conn.Close()
 
-	// Generate a random number from 0 to 100
-	r := rand.Intn(101)
+	// Generate a random number from 0 to 1000000
+	r := rand.Intn(1000001)
 	fmt.Printf("[Client %d] Random number to guess: %d\n", id, r)
 
 	// Get a buffered reader and writer
