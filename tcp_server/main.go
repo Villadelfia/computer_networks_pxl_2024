@@ -67,7 +67,7 @@ func handleClient(conn net.Conn, id int) {
 			fmt.Printf("[Client %d] Error: %s\n", id, err)
 			return
 		}
-		guess := int(binary.LittleEndian.Uint32(received))
+		guess := int(binary.BigEndian.Uint32(received))
 
 		// Print the guess
 		fmt.Printf("[Client %d] Received guess: %d\n", id, guess)

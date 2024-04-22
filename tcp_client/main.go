@@ -38,7 +38,7 @@ func main() {
 
 		// Send the guess
 		buffer := make([]byte, 4)
-		binary.LittleEndian.PutUint32(buffer, uint32(guess))
+		binary.BigEndian.PutUint32(buffer, uint32(guess))
 		sent, err := connection.Write(buffer)
 		if err != nil || sent != 4 {
 			fmt.Println("Error: ", err)
